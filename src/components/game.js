@@ -1,18 +1,54 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, Button, StyleSheet} from 'react-native';
 import RamdomNumber from './ramdomNumber';
+import shuffle from 'lodash.shuffle';
 
 class Game extends React.Component {
   state = {
     selectedNumbers: [],
+    timmer: this.props.timmer,
   };
 
+  currectStatus = 'Playing';
+
+  componentWillUpdate(nextProps, nextState) {
+    if (
+      nextState.selectedNumbers !== this.state.selectedNumbers ||
+      nextState.timmer === 0
+    ) {
+      this.currectStatus = this.gameStatus(nextState);
+
+      if (this.currectStatus !== 'Playing') {
+        clearInterval(this.intervalId);
+      }
+    }
+  }
+
+  componentDidMount() {
+    this.intervalId = setInterval(() => {
+      this.setState(
+        (prevState) => ({
+          timmer: prevState.timmer - 1,
+        }),
+        () => {
+          if (this.state.timmer === 0) {
+            clearInterval(this.intervalId);
+          }
+        },
+      );
+    }, 1000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.intervalId);
+  }
   randomNumber = Array.from({length: this.props.randomCount}).map(
     () => 1 + Math.floor(10 * Math.random()),
   );
   target = this.randomNumber
     .slice(0, this.props.randomCount - 2)
     .reduce((acc, curr) => acc + curr, 0);
+  shuffledRandomNumbers = shuffle(this.randomNumber);
 
   isNumberSelected = (index) => {
     return this.state.selectedNumbers.indexOf(index) >= 0;
@@ -24,10 +60,14 @@ class Game extends React.Component {
     }));
   };
 
-  gameStatus = () => {
-    const sumSelected = this.state.selectedNumbers.reduce((acc, curr) => {
-      return acc + this.randomNumber[curr];
+  gameStatus = (nextState) => {
+    const sumSelected = nextState.selectedNumbers.reduce((acc, curr) => {
+      return acc + this.shuffledRandomNumbers[curr];
     }, 0);
+
+    if (nextState.timmer === 0) {
+      return 'Lost';
+    }
 
     if (sumSelected < this.target) {
       return 'Playing';
@@ -41,14 +81,14 @@ class Game extends React.Component {
   };
 
   render() {
-    const gameStatus = this.gameStatus();
+    const gameStatus = this.currectStatus;
     return (
       <View style={styles.container}>
         <Text style={[styles.target, styles[`STATUS_${gameStatus}`]]}>
           {this.target}
         </Text>
         <View style={styles.ramdomContainer}>
-          {this.randomNumber.map((ramdom, index) => (
+          {this.shuffledRandomNumbers.map((ramdom, index) => (
             <RamdomNumber
               key={index}
               id={index}
@@ -63,6 +103,11 @@ class Game extends React.Component {
         <Text style={[styles.status, styles[`STATUS_${gameStatus}`]]}>
           {gameStatus}
         </Text>
+
+        <Text style={styles.timmer}>{this.state.timmer}</Text>
+        {gameStatus !== 'Playing' && (
+          <Button title="Play Again" onPress={this.props.onPlayAgain} />
+        )}
       </View>
     );
   }
@@ -87,6 +132,11 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-around',
   },
+  timmer: {
+    fontSize: 25,
+    textAlign: 'center',
+    backgroundColor: '#FF8C00',
+  },
   STATUS_Playing: {
     backgroundColor: '#bbb',
   },
@@ -97,8 +147,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
   },
   status: {
-    fontSize: 50,
-    margin: 50,
+    fontSize: 25,
+    margin: 75,
     textAlign: 'center',
     marginTop: 10,
   },
