@@ -17,7 +17,7 @@ This is a starter template for react-native mobile app developer
 
 The app will start from the splase page and then show the products as an examples.
 
-![]
+![](https://salweyar.github.io/images/numberGame/NumberGame.gif)
 
 ## Usage
 
