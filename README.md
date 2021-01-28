@@ -15,7 +15,7 @@ This is a starter template for react-native mobile app developer
 
 ## Demo
 
-The app will start from the splase page and then show the products as an examples.
+The app will start it's timer as user click on play. The game also display the result and reset to play again.
 
 ![](https://salweyar.github.io/images/numberGame/NumberGame.gif)
 
