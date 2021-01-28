@@ -1,4 +1,4 @@
-# React Native Number Gane App (tested on Android devices)
+# React Native Number Game App (tested on Android devices)
 
 This is a starter template for react-native mobile app developer
 
